@@ -12,31 +12,34 @@ import shutil  # The `shutil` module in Python provides convenience functions fo
 
 # Import string module for working with character strings
 import string  # The `string` module in Python contains constants representing all ASCII printing characters, digits, punctuation marks, etc., which can be useful when dealing with strings or generating random strings[5].
-import os 
+import os
 
-from tensorflow.keras import layers 
-from tensorflow.keras import losses 
+from tensorflow.keras import layers
+from tensorflow.keras import losses
 
-print("tensorflow version = ",tf.__version__)
+print("tensorflow version = ", tf.__version__)
 
-#downloading the IMDB dataset 
+
+# downloading the IMDB dataset
 
 url = "https://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz"
-dataset=tf.keras.utils.get_file("aclImdb_v1" , url , untar=True , cache_dir='.',cache_subdir='.')
+dataset = tf.keras.utils.get_file(
+    "aclImdb_v1", url, untar=True, cache_dir=".", cache_subdir="."
+)
 
 
-dataset_dir=os.path.join(os.path.dirname(dataset),'aclImdb')
+dataset_dir = os.path.join(os.path.dirname(dataset), "aclImdb")
 
 os.listdir(dataset_dir)
 
-train_dir=os.path.join(dataset_dir,'train')
+train_dir = os.path.join(dataset_dir, "train")
 os.listdir(train_dir)
 
-sample_file=os.path.join(train_dir,'pos/1181_9.txt')
+sample_file = os.path.join(train_dir, "pos/1181_9.txt")
 with open(sample_file) as f:
     print(f.read())
 
-remove_dir = os.path.join(train_dir, 'unsup')
+remove_dir = os.path.join(train_dir, "unsup")
 """ us it when running for the first time"""
 shutil.rmtree(remove_dir)
 
@@ -47,40 +50,45 @@ batch_size = 32
 seed = 42
 
 # Load the training dataset from the 'aclImdb/train' directory using TensorFlow's `text_dataset_from_directory()` function
-raw_train_ds = tf.keras.utils.text_dataset_from_directory('aclImdb/train',
-                                                            batch_size=batch_size,
-                                                            validation_split=0.2,
-                                                            subset='training',
-                                                            seed=seed)
+raw_train_ds = tf.keras.utils.text_dataset_from_directory(
+    "aclImdb/train",
+    batch_size=batch_size,
+    validation_split=0.2,
+    subset="training",
+    seed=seed,
+)
 
 for text_batch, label_batch in raw_train_ds.take(1):
-  for i in range(1):
-    print("Review", text_batch.numpy()[i])
-    print("Label", label_batch.numpy()[i])
+    for i in range(1):
+        print("Review", text_batch.numpy()[i])
+        print("Label", label_batch.numpy()[i])
 
 print("Label 0 corresponds to", raw_train_ds.class_names[0])
 print("Label 1 corresponds to", raw_train_ds.class_names[1])
 
 raw_val_ds = tf.keras.utils.text_dataset_from_directory(
-    'aclImdb/train', 
-    batch_size=batch_size, 
-    validation_split=0.2, 
-    subset='validation', 
-    seed=seed)
+    "aclImdb/train",
+    batch_size=batch_size,
+    validation_split=0.2,
+    subset="validation",
+    seed=seed,
+)
 
 print(raw_train_ds.class_names[0])
+
 
 def custom_standardization(input_data):
     # Convert input text to lowercase
     lowercase = tf.strings.lower(input_data)
-    
+
     # Remove HTML line breaks '<br />' and replace them with spaces
-    stripped_html = tf.strings.regex_replace(lowercase, '<br />', ' ')
-    
+    stripped_html = tf.strings.regex_replace(lowercase, "<br />", " ")
+
     # Remove punctuation from the text using regular expression
-    return tf.strings.regex_replace(stripped_html,
-                                    '[%s]' % re.escape(string.punctuation),
-                                    '')
+    return tf.strings.regex_replace(
+        stripped_html, "[%s]" % re.escape(string.punctuation), ""
+    )
+
 
 """Next, you will create a TextVectorization layer. You will use this layer to standardize, tokenize, and vectorize our data. You set the output_mode to int to create unique integer indices for each token.
 
@@ -97,8 +105,9 @@ sequence_length = 250
 vectorize_layer = layers.TextVectorization(
     standardize=custom_standardization,  # Use the custom standardization function defined earlier
     max_tokens=max_features,  # Set the maximum number of features to use
-    output_mode='int',  # Output integer-encoded sequences
-    output_sequence_length=sequence_length)  # Set the maximum sequence length
+    output_mode="int",  # Output integer-encoded sequences
+    output_sequence_length=sequence_length,
+)  # Set the maximum sequence length
 
 
 # Make a text-only dataset (without labels), then call adapt
@@ -108,9 +117,11 @@ train_text = raw_train_ds.map(lambda x, y: x)
 # Adapt the TextVectorization layer to the training text data
 vectorize_layer.adapt(train_text)
 
+
 def vectorize_text(text, label):
-  text = tf.expand_dims(text, -1)
-  return vectorize_layer(text), label
+    text = tf.expand_dims(text, -1)
+    return vectorize_layer(text), label
+
 
 # retrieve a batch (of 32 reviews and labels) from the dataset
 text_batch, label_batch = next(iter(raw_train_ds))
@@ -119,11 +130,11 @@ print("Review", first_review)
 print("Label", raw_train_ds.class_names[first_label])
 print("Vectorized review", vectorize_text(first_review, first_label))
 
-print("366 ----> " , vectorize_layer.get_vocabulary()[366])
+print("366 ----> ", vectorize_layer.get_vocabulary()[366])
 
 raw_test_ds = tf.keras.utils.text_dataset_from_directory(
-    'aclImdb/test', 
-    batch_size=batch_size)
+    "aclImdb/test", batch_size=batch_size
+)
 
 # Map the raw training dataset using the vectorize_text function
 train_ds = raw_train_ds.map(vectorize_text)
@@ -157,22 +168,20 @@ test_ds = test_ds.cache().prefetch(buffer_size=AUTOTUNE)
 embedding_dim = 16
 
 # Define the machine learning model using a Sequential model
-model = tf.keras.Sequential([
-    # Add an Embedding layer with the specified maximum number of features and embedding dimension
-    layers.Embedding(max_features, embedding_dim),
-    
-    # Add a Dropout layer to prevent overfitting
-    layers.Dropout(0.2),
-    
-    # Add a GlobalAveragePooling1D layer to reduce the dimensionality of the output
-    layers.GlobalAveragePooling1D(),
-    
-    # Add another Dropout layer to prevent overfitting
-    layers.Dropout(0.2),
-    
-    # Add a Dense layer with a single output unit for binary classification
-    layers.Dense(1)
-])
+model = tf.keras.Sequential(
+    [
+        # Add an Embedding layer with the specified maximum number of features and embedding dimension
+        layers.Embedding(max_features, embedding_dim),
+        # Add a Dropout layer to prevent overfitting
+        layers.Dropout(0.2),
+        # Add a GlobalAveragePooling1D layer to reduce the dimensionality of the output
+        layers.GlobalAveragePooling1D(),
+        # Add another Dropout layer to prevent overfitting
+        layers.Dropout(0.2),
+        # Add a Dense layer with a single output unit for binary classification
+        layers.Dense(1),
+    ]
+)
 
 
 model.summary()
@@ -181,49 +190,37 @@ model.summary()
 model.compile(
     # Specify the loss function as Binary Cross Entropy
     loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
-
     # Specify the optimizer as Adam
     optimizer="adam",
-
     # Specify the metric as Binary Accuracy
-    metrics=[tf.metrics.BinaryAccuracy(threshold=0.0)]
+    metrics=[tf.metrics.BinaryAccuracy(threshold=0.0)],
 )
 
-epochs =10 
-history=model.fit(
-    train_ds,
-    validation_data=val_ds,
-    epochs=epochs)
+epochs = 10
+history = model.fit(train_ds, validation_data=val_ds, epochs=epochs)
 
 
 # Evaluate the model on the test dataset and retrieve the loss and accuracy
 loss, accuracy = model.evaluate(test_ds)
 
 # Print the loss and accuracy as percentages
-print('loss:', str(loss * 100) + '%')
-print('accuracy:', str(accuracy * 100) + '%')
+print("loss:", str(loss * 100) + "%")
+print("accuracy:", str(accuracy * 100) + "%")
 
-export_model = tf.keras.Sequential([
-  vectorize_layer,
-  model,
-  layers.Activation('sigmoid')
-])
+export_model = tf.keras.Sequential(
+    [vectorize_layer, model, layers.Activation("sigmoid")]
+)
 
 export_model.compile(
-    loss=losses.BinaryCrossentropy(from_logits=False), optimizer="adam", metrics=['accuracy']
+    loss=losses.BinaryCrossentropy(from_logits=False),
+    optimizer="adam",
+    metrics=["accuracy"],
 )
 
 # Test it with `raw_test_ds`, which yields raw strings
 loss, accuracy = export_model.evaluate(raw_test_ds)
 print(accuracy)
 
-examples = [
-  "i am a mad guy who loves killing !"]
-sentiment=export_model.predict(examples)
-score=sentiment[0][0]
-if score > 0.5:
-    print(" user is happy")
-else:
-    print("user is sad")
+# Save the model using the TensorFlow format
 
-print(sentiment)
+tf.saved_model.save(export_model,'D:\MuraKon\Monica\sentiment_model')
