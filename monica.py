@@ -28,20 +28,20 @@ class MonicaFunc:
         predictions_array = predictions['activation'].numpy()
         self.sentiment_score=predictions_array[0][0]
 
-        if self.sentiment_score>0.5:
-            print("The user seems to be happy")
+        if self.sentiment_score>0.47:
+            return "The user seems to be happy"
             
 
         else:
-            print("The user seems to be sad")
+            return "The user seems to be sad"
             
 
     def sentimentMod(self):
         try:
             sentiment_model=tf.saved_model.load('D:\MuraKon\Monica\sentiment_model')
-            print("Sentiment model is loaded")
+            return"Sentiment model is loaded"
 
         except Exception as e:
-            print("Error in loading the model")
+            return "Error in loading the model"
 
     
