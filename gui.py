@@ -29,7 +29,7 @@ demo = gr.Interface(
     description="Meet Monica, your digital emotions detective! 
     🌟 Simply input your thoughts, and Monica, powered by TensorFlow and Gradio, deciphers your feelings—happy or sad. 
     Express yourself, and let Monica unravel your emotions effortlessly. Try it now for a unique self-discovery journey! 
-    🚀💬 #FeatureMonica"
+    🚀💬 "
 
 )
 
