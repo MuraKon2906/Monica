@@ -1,3 +1,4 @@
+
 import gradio as gr
 import monica as md
 
@@ -23,10 +24,10 @@ demo = gr.Interface(
     inputs=["text"],
     outputs=["text"],
     css=custom_css,
-    theme='braintacles/CrimsonNight',  # Use the Hugging Face theme for a cleaner look
+    #theme='ParityError/Anime',  # Use the Hugging Face theme for a cleaner look
     title="Sentiment analysis",
-    description="feature of Monica Project"
+    description="feature of Monica Project :)"
 
 )
 
-demo.launch(share=True)
+demo.launch()

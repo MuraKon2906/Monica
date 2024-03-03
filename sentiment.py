@@ -221,6 +221,8 @@ export_model.compile(
 loss, accuracy = export_model.evaluate(raw_test_ds)
 print(accuracy)
 
-# Save the model using the TensorFlow format
-
-tf.saved_model.save(export_model,'D:\MuraKon\Monica\sentiment_model')
+# Saving the model
+project_file=os.getcwd()
+sentiment_model_fdname='sentiment_model'
+sentiment_model=os.path.join(project_file,sentiment_model_fdname)
+tf.saved_model.save(export_model,sentiment_model)
