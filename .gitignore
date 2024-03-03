@@ -3,3 +3,12 @@ exp2.py
 aclImdb
 __pycache__/
 exp3.py
+flagged
+log.csv
+.dockerignore
+compose.yaml
+exp.py
+sentiment_model/
+.dockerignore
+exp.py
+
