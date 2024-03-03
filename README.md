@@ -59,6 +59,7 @@ Contributions are welcome! Please feel free to submit a pull request or open an 
 # Important Notes 📝
 
 If you are creating the `sentiment_model` from scratch, it's better to delete the existing `sentiment_model` folder. The `sentiment_model` folder is the most crucial folder required to run the project. If the application fails, re-run `sentiment.py`.
+Its recommended to rerun `sentiment.py` and delete the older `sentiment_model` folder that comes during cloning of the repo
 
 
  Contact 📧
