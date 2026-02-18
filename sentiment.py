@@ -49,7 +49,7 @@ batch_size = 32
 # Set the random seed for reproducibility
 seed = 42
 
-# Load the training dataset from the 'aclImdb/train' directory using TensorFlow's `text_dataset_from_directory()` function
+
 raw_train_ds = tf.keras.utils.text_dataset_from_directory(
     "aclImdb/train",
     batch_size=batch_size,
@@ -90,9 +90,6 @@ def custom_standardization(input_data):
     )
 
 
-"""Next, you will create a TextVectorization layer. You will use this layer to standardize, tokenize, and vectorize our data. You set the output_mode to int to create unique integer indices for each token.
-
-Note that you're using the default split function, and the custom standardization function you defined above. You'll also define some constants for the model, like an explicit maximum sequence_length, which will cause the layer to pad or truncate sequences to exactly sequence_length values."""
 
 
 # Set the maximum number of features to use in the vectorization layer
@@ -110,11 +107,10 @@ vectorize_layer = layers.TextVectorization(
 )  # Set the maximum sequence length
 
 
-# Make a text-only dataset (without labels), then call adapt
-# Process the raw text data from the training dataset using a lambda function
+
 train_text = raw_train_ds.map(lambda x, y: x)
 
-# Adapt the TextVectorization layer to the training text data
+
 vectorize_layer.adapt(train_text)
 
 
@@ -139,7 +135,7 @@ raw_test_ds = tf.keras.utils.text_dataset_from_directory(
 # Map the raw training dataset using the vectorize_text function
 train_ds = raw_train_ds.map(vectorize_text)
 
-# Map the raw validation dataset using the vectorize_text function
+
 val_ds = raw_val_ds.map(vectorize_text)
 
 # Map the raw testing dataset using the vectorize_text function
